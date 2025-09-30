@@ -1,0 +1,29 @@
+{
+  "name": "load-testing-apis",
+  "version": "1.0.0",
+  "description": "A basic k6 load testing project for APIs.",
+  "main": "script.js",
+  "scripts": {
+    "test": "k6 cloud run dist/bundle.js",
+    "k6:dashboard": "cross-env K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report.html k6 cloud run dist/bundle.js",
+    "build": "webpack"
+  },
+  "keywords": [
+    "k6",
+    "load-testing",
+    "api",
+    "performance"
+  ],
+  "author": "",
+  "license": "",
+  "devDependencies": {
+    "@types/k6": "^1.0.2",
+    "cross-env": "^7.0.3",
+    "dotenv-cli": "^8.0.0",
+    "typescript": "^5.0.4",
+    "webpack": "^5.100.2",
+    "webpack-cli": "^6.0.1",
+    "ts-loader": "^9.5.2",
+    "@faker-js/faker": "^9.8.0"
+  }
+}
