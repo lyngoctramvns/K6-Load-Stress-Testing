@@ -80,9 +80,7 @@ export default function (): void {
   }
 
   //POST to register new user
-  let userList = [];
   const generateUser: any = createUser();
-  userList.push(generateUser);
   const registerUserRes: Response = http.post(
     `${BASEURL}api/createAccount`,
     JSON.stringify(generateUser),
@@ -96,7 +94,7 @@ export default function (): void {
   }
 
   //POST to verify login with valid details
-  const userVeify = faker.helpers.arrayElement(userList);
+  const userVeify = generateUser
   const verifyLoginRes: Response = http.post(
     `${BASEURL}api/verifyLogin`,
     JSON.stringify(verifyLogin(
@@ -111,5 +109,39 @@ export default function (): void {
   if(!verifyLoginResTrue){
     console.log(`POST to verify login with valid details request FAILED: ${verifyLoginRes.body}`);
   }
+  // Update and Delete users
+  processUsersIncrementally(generateUser);
   sleep(1);
-} 
+}
+
+function processUsersIncrementally(user: any) {
+    const userUpdate = user
+    userUpdate.company = faker.company.name();
+    // Update user
+    const updateRes: Response = http.put(
+      `${BASEURL}api/updateAccount`,
+      JSON.stringify(userUpdate),
+      headers
+    );
+    const updateResTrue = check(updateRes, {
+      'status is 200': (r: Response) => r.status === 200
+    });
+    if (!updateResTrue) {
+      console.log(`Update user failed for ${userUpdate.email}: ${updateRes.body}`);
+    }
+    // Delete user
+    const deleteRes: Response = http.del(
+      `${BASEURL}api/deleteAccount`,
+      JSON.stringify({ 
+        email: user.email,
+        password: user.password
+      }),
+      headers
+    );
+    const deleteResTrue = check(deleteRes, {
+      'status is 200': (r: Response) => r.status === 200
+    });
+    if (!deleteResTrue) {
+      console.log(`Delete user failed for ${user.email}: ${deleteRes.body}`);
+    }
+}

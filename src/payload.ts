@@ -19,9 +19,15 @@ export function createUser(){
         birth_month: faker.date.month(),
         birth_year: faker.date.birthdate({ mode: 'age', min: 18, max: 65 }).getFullYear(),
         firstname: userName,
-        lasname: faker.person.lastName(),
+        lastname: faker.person.lastName(),
         company: faker.company.name(),
-        
+        address1: faker.location.streetAddress(),
+        address2: faker.location.secondaryAddress(),
+        country: faker.location.country(),
+        zipcode: faker.location.zipCode(),
+        state: faker.location.state(),
+        city: faker.location.city(),
+        mobile_number: faker.phone.number()
     }
 }
 
