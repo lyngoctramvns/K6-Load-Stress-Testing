@@ -17,6 +17,10 @@ Install @type/k6 in case there is none
 ```bash
    npm install --save-dev @types/k6
 ```
+3. Environmental variable
+```bash
+   BASE_URL = "https://automationexercise.com/"
+```
 ## Login to & test on Grafana Cloud
 
 ```bash
