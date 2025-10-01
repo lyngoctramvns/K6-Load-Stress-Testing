@@ -1,8 +1,7 @@
-import http, { Response, RequestBody } from 'k6/http';
-import { check, sleep } from 'k6';
+import { sleep } from 'k6';
 import { Options } from 'k6/options';
-import { searchProductParam, createUser, verifyLogin } from './payload';
-import { faker } from '@faker-js/faker';
+import { ProductComponent } from './classes/products';
+import { UserComponent } from './classes/users';
 
 const BASEURL = __ENV.BASE_URL;
 
@@ -25,123 +24,20 @@ export const options: Options = {
   ],
 };
 
+// Initialize classes
+const productAPIComponent = new ProductComponent(BASEURL, headers);
+const userAPIComponent = new UserComponent(BASEURL, headers);
+
 export default function (): void {
-  // Example GET request
-  const res: Response = http.get(`${BASEURL}api/productsList`);
-  check(res, {
-    'status is 200': (r: Response) => r.status === 200,
-  });
-
-  // POST All Products request
-  const postAllProductRes: Response = http.post(
-    `${BASEURL}api/productsList`,
-    "",
-    headers
-  );
-  const postAllProductResTrue = check(postAllProductRes, {
-    'status is 405': (r: Response) => r.status === 405,
-  })
-  if(!postAllProductResTrue){
-    console.log(`POST All Products request FAILED: ${postAllProductRes.body}`);
-  }
-
-  //GET all brand list
-  const allBrandListRes: Response = http.get(
-    `${BASEURL}api/brandsList`
-  )
-  const allBrandListResTrue = check(allBrandListRes, {
-    'status is 200': (r: Response) => r.status === 200,
-  })
-  if(!allBrandListResTrue){
-    console.log(`GET all brand list request FAILED: ${allBrandListRes.body}`);
-  }
-  //PUT to all brand list
-  const allBrandListPutRes: Response = http.put(
-    `${BASEURL}api/brandsList`
-  )
-  const allBrandPutResTrue = check(allBrandListPutRes, {
-    'Status is 405': (r: Response) => r.status === 405,
-  })
-  if(!allBrandPutResTrue){
-    console.log(`PUT to all brand list request FAILED: ${allBrandListPutRes.body}`);
-  }
-  // POST Search Product request
-  const formSearchProductData = JSON.stringify(searchProductParam())
-  const searchProductRes: Response = http.post(
-    `${BASEURL}api/searchProduct`,
-    formSearchProductData,
-    headers
-  )
-  const searchProductResTrue = check(searchProductRes, {
-    'status is 200': (r: Response) =>r.status === 200
-  });
-  if(!searchProductResTrue){
-    console.log(`POST Search Product request FAILED: ${searchProductRes.body}`);
-  }
-
-  //POST to register new user
-  const generateUser: any = createUser();
-  const registerUserRes: Response = http.post(
-    `${BASEURL}api/createAccount`,
-    JSON.stringify(generateUser),
-    headers
-  )
-  const registerUserResTrue = check(registerUserRes, {
-    'status is 201': (r: Response) => r.status === 201
-  });
-  if(!registerUserResTrue){
-    console.log(`POST to register new user request FAILED: ${registerUserRes.body}`);
-  }
-
-  //POST to verify login with valid details
-  const userVeify = generateUser
-  const verifyLoginRes: Response = http.post(
-    `${BASEURL}api/verifyLogin`,
-    JSON.stringify(verifyLogin(
-      userVeify.email, 
-      userVeify.password
-    )),
-    headers
-  )
-  const verifyLoginResTrue = check(verifyLoginRes, {
-    'status is 200': (r: Response) => r.status === 200
-  });
-  if(!verifyLoginResTrue){
-    console.log(`POST to verify login with valid details request FAILED: ${verifyLoginRes.body}`);
-  }
+  //GET & POST all products test
+  productAPIComponent.allProducts();
+  //GET & PUT all brands test
+  productAPIComponent.allBrands();
+  // Search products
+  productAPIComponent.searchProducts();
+  // Register and verify user
+  const generatedUser = userAPIComponent.generateVerifyUser();
   // Update and Delete users
-  processUsersIncrementally(generateUser);
+  userAPIComponent.processUsersIncrementally(generatedUser);
   sleep(1);
-}
-
-function processUsersIncrementally(user: any) {
-    const userUpdate = user
-    userUpdate.company = faker.company.name();
-    // Update user
-    const updateRes: Response = http.put(
-      `${BASEURL}api/updateAccount`,
-      JSON.stringify(userUpdate),
-      headers
-    );
-    const updateResTrue = check(updateRes, {
-      'status is 200': (r: Response) => r.status === 200
-    });
-    if (!updateResTrue) {
-      console.log(`Update user failed for ${userUpdate.email}: ${updateRes.body}`);
-    }
-    // Delete user
-    const deleteRes: Response = http.del(
-      `${BASEURL}api/deleteAccount`,
-      JSON.stringify({ 
-        email: user.email,
-        password: user.password
-      }),
-      headers
-    );
-    const deleteResTrue = check(deleteRes, {
-      'status is 200': (r: Response) => r.status === 200
-    });
-    if (!deleteResTrue) {
-      console.log(`Delete user failed for ${user.email}: ${deleteRes.body}`);
-    }
 }
