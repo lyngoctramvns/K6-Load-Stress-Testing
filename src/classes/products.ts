@@ -23,7 +23,9 @@ export class ProductComponent {
             this.headers
         );
         const postAllProductResTrue = check(postAllProductRes, {
-            'status is 405': (r: Response) => r.status === 405,
+            'status is 200': (r: Response) => r.status === 200,
+            'responseCode is 405': (r: Response) => r.json('responseCode') === 405,
+            'Message is This request method is not supported.': (r: Response) => r.json('message') === 'This request method is not supported.'
         })
         if(!postAllProductResTrue){
             console.log(`POST All Products request FAILED: ${postAllProductRes.body}`);
@@ -46,7 +48,9 @@ export class ProductComponent {
         `${this.url}api/brandsList`
       )
       const allBrandPutResTrue = check(allBrandListPutRes, {
-        'Status is 405': (r: Response) => r.status === 405,
+        'Status is 200': (r: Response) => r.status === 200,
+        'ResponseCode is 405': (r: Response) => r.json('responseCode') === 405,
+        'Message is This request method is not supported.': (r: Response) => r.json('message') === 'This request method is not supported.'
       })
       if(!allBrandPutResTrue){
         console.log(`PUT to all brand list request FAILED: ${allBrandListPutRes.body}`);

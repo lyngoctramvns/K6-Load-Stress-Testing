@@ -37,3 +37,11 @@ Run the project with:
    k6 cloud run dist/bundle.js
 ```
 The report results will display on Projects tab within your Grafana Cloud Dashboard
+
+## Run locally
+
+Run command:
+```bash
+   npm run k6:local
+```
+The report should be shown in reports folder.

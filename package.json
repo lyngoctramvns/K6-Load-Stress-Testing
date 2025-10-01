@@ -6,6 +6,7 @@
   "scripts": {
     "test": "k6 cloud run dist/bundle.js",
     "k6:dashboard": "cross-env K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=report.html k6 cloud run dist/bundle.js",
+    "k6:local": "dotenv -e .env -- cross-env K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=./reports/report.html k6 run dist/bundle.js",
     "build": "webpack"
   },
   "keywords": [

@@ -1,6 +1,6 @@
 import http, { Response } from 'k6/http';
 import { check } from 'k6';
-import { createUser, verifyLogin } from "../payload";
+import { verifyLogin } from "../payload";
 import { faker } from '@faker-js/faker';
 
 export class UserComponent {
@@ -11,16 +11,24 @@ export class UserComponent {
         this.headers = headers;
     }
 
-    generateVerifyUser(): any {
+    toFormUrlEncoded(obj: any) {
+        return Object.entries(obj)
+            .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v == null ? '' : String(v)))
+            .join('&');
+    }
+
+    generateVerifyUser(user: any){
         //POST to register new user
-        const generateUser: any = createUser();
+        const generateUser: any = user
         const registerUserRes: Response = http.post(
             `${this.url}api/createAccount`,
-            JSON.stringify(generateUser),
+            generateUser,
             this.headers
         );
         const registerUserResTrue = check(registerUserRes, {
-            'status is 201': (r: Response) => r.status === 201
+            'status is 200': (r: Response) => r.status === 200,
+            'verify responseCode is 201': (r: Response) => r.json('responseCode') === 201,
+            'verify message is User created!': (r: Response) => r.json('message') === 'User created!'
         });
         if (!registerUserResTrue) {
             console.log(`POST to register new user request FAILED: ${registerUserRes.body}`);
@@ -42,7 +50,6 @@ export class UserComponent {
         if (!verifyLoginResTrue) {
             console.log(`POST to verify login with valid details request FAILED: ${verifyLoginRes.body}`);
         }
-        return generateUser;
     }
 
     processUsersIncrementally(user: any) {

@@ -2,6 +2,7 @@ import { sleep } from 'k6';
 import { Options } from 'k6/options';
 import { ProductComponent } from './classes/products';
 import { UserComponent } from './classes/users';
+import { createUser } from './payload';
 
 const BASEURL = __ENV.BASE_URL;
 
@@ -36,7 +37,9 @@ export default function (): void {
   // Search products
   productAPIComponent.searchProducts();
   // Register and verify user
-  const generatedUser = userAPIComponent.generateVerifyUser();
+  const generatedUser = createUser()
+  const createdUser = userAPIComponent.toFormUrlEncoded(generatedUser);
+  userAPIComponent.generateVerifyUser(createdUser);
   // Update and Delete users
   userAPIComponent.processUsersIncrementally(generatedUser);
   sleep(1);
